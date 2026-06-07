@@ -3,11 +3,13 @@
 namespace App\Controller\Api;
 
 use App\Entity\Category;
+use App\Enum\UserRole;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -28,6 +30,7 @@ final class CategoryController extends AbstractController
     }
 
     #[Route('/api/categories', methods: ['POST'])]
+    #[IsGranted(UserRole::ADMIN->value)]
     public function create(Request $request,
                            SerializerInterface $serializer,
                            EntityManagerInterface $em,
@@ -50,12 +53,13 @@ final class CategoryController extends AbstractController
     }
 
     #[Route('/api/categories/{id}', methods: ['PATCH'])]
+    #[IsGranted(UserRole::ADMIN->value)]
     public function update(
-                            Request $request,
-                            Category $category,
-                            SerializerInterface $serializer,
-                            EntityManagerInterface $em,
-                            ValidatorInterface $validator
+        Request $request,
+        Category $category,
+        SerializerInterface $serializer,
+        EntityManagerInterface $em,
+        ValidatorInterface $validator
     ): JsonResponse {
 
         $serializer->deserialize(
@@ -76,6 +80,7 @@ final class CategoryController extends AbstractController
     }
 
     #[Route('/api/categories/{id}', methods: ['DELETE'])]
+    #[IsGranted(UserRole::ADMIN->value)]
     function delete(Category $category,
                     EntityManagerInterface $em
     ): JsonResponse {
@@ -90,4 +95,3 @@ final class CategoryController extends AbstractController
         );
     }
 }
-

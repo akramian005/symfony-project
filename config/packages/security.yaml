@@ -20,6 +20,8 @@ security:
         api:
             pattern: ^/api
             stateless: true
+            # Позволяет пропускать пустые запросы (без заголовка Authorization) дальше в access_control
+            required_badges: []
             access_token:
                 token_handler: App\Security\ApiTokenHandler
 
@@ -52,8 +54,15 @@ security:
         # 2. Открываем логин без токена
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
 
-        # 3. ОТКРЫВАЕМ КАТЕГОРИИ ДЛЯ ВСЕХ (Добавь эту строчку!)
-        - { path: ^/api/categories, roles: PUBLIC_ACCESS }
+        # 3. ОТКРЫВАЕМ КАТЕГОРИИ И ВСЕ ИХ ПОДПУТИ ДЛЯ ВСЕХ (Чтение списков и конкретных ID)
+        # Регулярка ($|/) корректно отработает и /api/categories, и /api/categories/3
+        - { path: ^/api/categories($|/), methods: [GET], roles: PUBLIC_ACCESS }
+
+        # 4. АДМИНИСТРИРОВАНИЕ КАТЕГОРИЙ (Аналог middleware 'can:manage-categories' из Laravel)
+        - { path: ^/api/categories($|/), methods: [POST, PUT, PATCH, DELETE], roles: ROLE_ADMIN }
+
+        # 5. СТРОГАЯ ЗАГЛУШКА: Все остальные пути внутри /api (включая /api/logout) требуют токен
+        - { path: ^/api, roles: ROLE_USER }
 
 when@test:
     security:

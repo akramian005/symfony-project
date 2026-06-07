@@ -13,13 +13,20 @@ class ApiTokenHandler implements AccessTokenHandlerInterface
         private UserRepository $userRepository
     ) {}
 
-    public function getUserBadgeFrom(string $accessToken): UserBadge
+    public function getUserBadgeFrom(#[\SensitiveParameter] string $accessToken): UserBadge
     {
-        // Ищем пользователя в базе по токену
+        // Если заголовок Authorization отсутствует или пустой — значит пришел гость
+        if (empty($accessToken) || trim($accessToken) === '') {
+            // Возвращаем пустой Badge. Symfony поймет, что пользователь анонимный,
+            // не станет рубить запрос ошибкой 401 и передаст его в access_control.
+            return new UserBadge('');
+        }
+
+        // Если токен передан — ищем пользователя в базе
         $user = $this->userRepository->findOneBy(['apiToken' => $accessToken]);
 
         if (!$user) {
-            // Если токен не существует или невалиден
+            // Ошибка выбросится ТОЛЬКО если токен был передан, но он неверный
             throw new BadCredentialsException('Неверный или недействительный API-токен.');
         }
 
