@@ -116,4 +116,5 @@ class ApiRegistrationController extends AbstractController
             'status' => 'Успешный выход. Токен аннулирован.'
         ], Response::HTTP_OK);
     }
+
 }
