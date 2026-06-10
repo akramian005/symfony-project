@@ -112,6 +112,7 @@ class ApiRegistrationController extends AbstractController
         $user->setApiToken(null);
         $entityManager->flush();
 
+
         return new JsonResponse([
             'status' => 'Успешный выход. Токен аннулирован.'
         ], Response::HTTP_OK);
